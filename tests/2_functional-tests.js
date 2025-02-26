@@ -14,19 +14,14 @@ const Book = require('../models/book');
 
 chai.use(chaiHttp);
 
-suiteSetup(function(done) {
-  mongoose.connect(process.env.DB)
-    .then(() => {
-      console.log('Database connected for tests');
-      return Book.deleteMany({});
-    })
-    .then(() => {
-      done();
-    })
-    .catch((err) => {
-      console.error('Error in test setup:', err);
-      done(err);
-    });
+suiteSetup(async function() {
+  try {
+    await mongoose.connect(process.env.DB);
+    await Book.deleteMany({});
+  } catch (err) {
+    console.error('Error in test setup:', err);
+    throw err;
+  }
 });
 
 suite('Functional Tests', function() {
@@ -34,17 +29,7 @@ suite('Functional Tests', function() {
   
   let bookId;
 
-  // Move DELETE all books test to run first
-  test('Test DELETE /api/books to clear database', function(done) {
-    chai.request(server)
-      .delete('/api/books')
-      .end(function(err, res) {
-        assert.equal(res.status, 200);
-        assert.equal(res.text, 'complete delete successful');
-        done();
-      });
-  });
-
+  // Remove duplicate DELETE test and keep it in the correct suite
   /*
   * ----[EXAMPLE TEST]----
   * Each test should completely test the response of the API end-point including response status code!
@@ -225,8 +210,10 @@ suite('Functional Tests', function() {
 
 suiteTeardown(async function() {
   try {
+    await Book.deleteMany({});
     await mongoose.connection.close();
   } catch (err) {
-    console.error('Error closing connection:', err);
+    console.error('Error in test teardown:', err);
+    throw err;
   }
 });

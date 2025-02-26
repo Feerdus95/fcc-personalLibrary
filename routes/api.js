@@ -84,7 +84,6 @@ module.exports = function (app) {
     .post(async function(req, res){
       let bookid = req.params.id;
       let comment = req.body.comment;
-      //json res format same as .get
       if (!comment) {
         return res.status(400).send('missing required field comment');
       }
@@ -94,6 +93,7 @@ module.exports = function (app) {
           return res.status(404).send('no book exists');
         }
         book.comments.push(comment);
+        book.commentcount = book.comments.length;
         const updatedBook = await book.save();
         res.json({
           _id: updatedBook._id,
