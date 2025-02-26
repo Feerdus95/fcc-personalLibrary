@@ -18,7 +18,9 @@ mongoose.connect(process.env.DB) // Removed deprecated options
 
 // Routes
 const apiRoutes = require('./routes/api');
+const fcctesting = require('./routes/fcctesting');
 app.use('/api', apiRoutes);
+app.use('/_api', fcctesting);
 
 // Serve static files
 app.use('/public', express.static(process.cwd() + '/public'));

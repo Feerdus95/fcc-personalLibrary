@@ -71,6 +71,10 @@ $(document).ready(function() {
 
   $('#bookDetail').on('click', 'button.addComment', function() {
     let newComment = $('#commentToAdd').val();
+    if (!newComment) {
+      console.error("Comment field is empty.");
+      return;
+    }
     $.ajax({
       url: '/api/books/' + this.id,
       type: 'post',
