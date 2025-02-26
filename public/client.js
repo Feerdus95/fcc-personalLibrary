@@ -5,7 +5,7 @@ $(document).ready(function() {
   // Initial book list display
   $.getJSON('/api/books', function(data) {
     itemsRaw = data;
-    console.log("itemsRaw (initial):", itemsRaw); // Added log
+    console.log("itemsRaw (initial):", itemsRaw);
     refreshBookList();
   });
 
@@ -19,7 +19,11 @@ $(document).ready(function() {
       data: $('#newBookForm').serialize(),
       success: function(data) {
         $('#bookTitleToAdd').val('');
-        refreshBookList();
+        // Directly update itemsRaw after adding a book
+        $.getJSON('/api/books', function(data) {
+          itemsRaw = data;
+          refreshBookList();
+        });
       }
     });
   });
@@ -27,6 +31,7 @@ $(document).ready(function() {
   function refreshBookList() {
     $('#display').empty();
     $.getJSON('/api/books', function(data) {
+      itemsRaw = data; // Update itemsRaw
       $.each(data, function(i, val) {
         let bookItem = $(`
           <div class="book-item p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200 animate-fade-in">
