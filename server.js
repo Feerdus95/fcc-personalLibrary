@@ -12,13 +12,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // MongoDB Connection
-mongoose.connect(process.env.DB, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.DB) // Removed deprecated options
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 
 // Routes
 const apiRoutes = require('./routes/api');
-app.use('/', apiRoutes);
+app.use('/api', apiRoutes);
 
 // Serve static files
 app.use('/public', express.static(process.cwd() + '/public'));
@@ -29,10 +29,16 @@ app.route('/')
     res.sendFile(process.cwd() + '/views/index.html');
   });
 
+// Error handling
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+
 // Start the server
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Your app is listening on port ${port}`);
 });
 
-module.exports = app; // For testing
+module.exports = app;
