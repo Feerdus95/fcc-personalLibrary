@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="icon" type="image/png" href="https://cdn.freecodecamp.org/universal/favicons/favicon-16x16.png" />
+  <title>Personal Library</title>
+  <style>
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+    .float { animation: float 3s ease-in-out infinite; }
+  </style>
+</head>
+<body class="bg-gradient-to-r from-blue-50 to-indigo-100 min-h-screen">
+<header class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-8 shadow-lg">
+  <div class="container mx-auto flex items-center justify-between">
+    <div>
+      <h1 class="text-4xl font-bold animate-fade-in">Personal Library</h1>
+      <p class="text-lg mt-2 animate-fade-in">Your digital bookshelf</p>
+    </div>
+    <div class="float">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+      </svg>
+    </div>
+  </div>
+</header>
+
+<div class="container mx-auto p-6">
+  <div id='sampleposting' class="mb-8 p-6 bg-white rounded-xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-1">
+    <h2 class="text-2xl font-semibold mb-4 text-gray-800 animate-fade-in">Test API Responses</h2>
+    <form action="/api/books" method="post" class="mb-6">
+      <label class="block text-gray-700 font-medium mb-2 animate-fade-in" for="title">Book Title</label>
+      <input class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all animate-fade-in" type="text" id="title" name="title" placeholder="Enter a book title">
+      <button class="mt-4 w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200 animate-fade-in" type="submit">Submit</button>
+    </form>
+    <form action="" method="post" id="commentTest" class="mb-6">
+      <label class="block text-gray-700 font-medium mb-2 animate-fade-in" for="idinputtest">Book ID to Comment On</label>
+      <input class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all animate-fade-in" type="text" name="id" id="idinputtest" placeholder="Enter a book ID">
+      <label class="block text-gray-700 font-medium mb-2 mt-4 animate-fade-in" for="comment">Comment</label>
+      <input class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all animate-fade-in" type="text" id="comment" name="comment" placeholder="Enter your comment">
+      <button class="mt-4 w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200 animate-fade-in" type="submit">Submit</button>
+    </form>
+  </div>
+  <hr class="my-8 border-gray-200">
+  <div id='sampleui' class="p-6 bg-white rounded-xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-1">
+    <h2 class="text-2xl font-semibold mb-4 text-gray-800 animate-fade-in">Your Library</h2>
+    <form id="newBookForm" class="mb-6">
+      <label class="block text-gray-700 font-medium mb-2 animate-fade-in" for="bookTitleToAdd">New Book Title</label>
+      <input class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all animate-fade-in" type="text" id="bookTitleToAdd" name="title" placeholder="Moby Dick">
+      <button class="mt-4 w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200 animate-fade-in" type="submit" id="newBook">Add New Book</button>
+    </form>
+    <div id='display' class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    <div id='bookDetail' class='mt-6 p-6 bg-gray-50 rounded-xl border border-gray-200'>
+      <p id='detailTitle' class="text-lg font-medium text-gray-700 animate-fade-in">Select a book to see its details and comments</p>
+      <ol id='detailComments' class="mt-4 space-y-2 animate-fade-in"></ol>
+    </div>
+    <button id='deleteAllBooks' class="mt-6 w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors duration-200 animate-fade-in">Delete All Books</button>
+  </div>
+</div>
+
+<footer class="bg-gray-800 text-white py-4 mt-8">
+  <div class="container mx-auto text-center">
+    <p>&copy; 2023 Personal Library. Created for freeCodeCamp.</p>
+  </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-2.2.1.min.js" integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00=" crossorigin="anonymous"></script>
+<script src="/public/client.js"></script>
+<script>
+  $(function() {
+    $('#commentTest').submit(function(){
+      let id = $('#idinputtest').val();
+      $(this).attr('action', "/api/books/" + id);
+    });
+
+    // Add this new code for a more interactive UI
+    $('#display').on('click', '.book-item', function() {
+      $(this).toggleClass('bg-blue-100');
+    });
+
+    $('#newBookForm').submit(function(e) {
+      e.preventDefault();
+      let title = $('#bookTitleToAdd').val();
+      if (title) {
+        // This is where you'd normally send an AJAX request to your API
+        // For now, we'll just add it to the display for demonstration
+        $('#display').prepend(`
+          <div class="book-item p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200">
+            <h3 class="font-semibold text-lg">${title}</h3>
+            <p class="text-gray-600">ID: ${Math.random().toString(36).substr(2, 9)}</p>
+          </div>
+        `);
+        $('#bookTitleToAdd').val('');
+      }
+    });
+  });
+</script>
+</body>
+</html>
