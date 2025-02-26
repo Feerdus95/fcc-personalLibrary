@@ -4,14 +4,14 @@ const Book = require('../models/book');
 
 // POST /api/books
 router.post('/books', async (req, res) => {
-  const { title } = req.body;
+  const title = req.body.title?.trim();
   if (!title) {
     return res.status(400).send('missing required field title');
   }
   try {
     const newBook = new Book({ title });
     const savedBook = await newBook.save();
-    res.json(savedBook);
+    res.json({ _id: savedBook._id, title: savedBook.title });
   } catch (err) {
     res.status(500).send('Error adding book');
   }
@@ -20,13 +20,12 @@ router.post('/books', async (req, res) => {
 // GET /api/books
 router.get('/books', async (req, res) => {
   try {
-    const books = await Book.find({});
-    const bookList = books.map(book => ({
+    const books = await Book.find();
+    res.json(books.map(book => ({
       _id: book._id,
       title: book.title,
       commentcount: book.comments.length
-    }));
-    res.json(bookList);
+    })));
   } catch (err) {
     res.status(500).send('Error retrieving books');
   }
@@ -39,7 +38,11 @@ router.get('/books/:id', async (req, res) => {
     if (!book) {
       return res.status(404).send('no book exists');
     }
-    res.json(book);
+    res.json({
+      _id: book._id,
+      title: book.title,
+      comments: book.comments
+    });
   } catch (err) {
     res.status(404).send('no book exists');
   }
@@ -47,7 +50,7 @@ router.get('/books/:id', async (req, res) => {
 
 // POST /api/books/:id
 router.post('/books/:id', async (req, res) => {
-  const { comment } = req.body;
+  const comment = req.body.comment?.trim();
   if (!comment) {
     return res.status(400).send('missing required field comment');
   }
@@ -57,9 +60,12 @@ router.post('/books/:id', async (req, res) => {
       return res.status(404).send('no book exists');
     }
     book.comments.push(comment);
-    book.commentcount = book.comments.length;
-    const updatedBook = await book.save();
-    res.json(updatedBook);
+    await book.save();
+    res.json({
+      _id: book._id,
+      title: book.title,
+      comments: book.comments
+    });
   } catch (err) {
     res.status(404).send('no book exists');
   }
@@ -68,8 +74,8 @@ router.post('/books/:id', async (req, res) => {
 // DELETE /api/books/:id
 router.delete('/books/:id', async (req, res) => {
   try {
-    const book = await Book.findByIdAndDelete(req.params.id);
-    if (!book) {
+    const result = await Book.findByIdAndDelete(req.params.id);
+    if (!result) {
       return res.status(404).send('no book exists');
     }
     res.send('delete successful');
@@ -84,7 +90,7 @@ router.delete('/books', async (req, res) => {
     await Book.deleteMany({});
     res.send('complete delete successful');
   } catch (err) {
-    res.status(500).send('Error deleting all books');
+    res.status(500).send('Error deleting books');
   }
 });
 
