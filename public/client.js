@@ -44,18 +44,22 @@ $(document).ready(function() {
 
   $('#display').on('click', '.book-item', function() {
     const index = $('#display .book-item').index(this);
-    const bookId = itemsRaw[index]._id;
-    $.getJSON('/api/books/' + bookId, function(data) {
-      let comments = [];
-      $.each(data.comments, function(i, val) {
-        comments.push('<li>' + val + '</li>');
+    if (itemsRaw && itemsRaw[index] && itemsRaw[index]._id) { // Added check
+      const bookId = itemsRaw[index]._id;
+      $.getJSON('/api/books/' + bookId, function(data) {
+        let comments = [];
+        $.each(data.comments, function(i, val) {
+          comments.push('<li>' + val + '</li>');
+        });
+        comments.push('<br><form id="newCommentForm"><input style="width:300px" type="text" class="form-control" id="commentToAdd" name="comment" placeholder="New Comment"></form>');
+        comments.push('<br><button class="btn btn-info addComment" id="' + data._id + '">Add Comment</button>');
+        comments.push('<button class="btn btn-danger deleteBook" id="' + data._id + '">Delete Book</button>');
+        $('#detailComments').html(comments.join(''));
+        $('#bookDetail').show();
       });
-      comments.push('<br><form id="newCommentForm"><input style="width:300px" type="text" class="form-control" id="commentToAdd" name="comment" placeholder="New Comment"></form>');
-      comments.push('<br><button class="btn btn-info addComment" id="' + data._id + '">Add Comment</button>');
-      comments.push('<button class="btn btn-danger deleteBook" id="' + data._id + '">Delete Book</button>');
-      $('#detailComments').html(comments.join(''));
-      $('#bookDetail').show(); // Show details
-    });
+    } else {
+      console.error("Book data is not available or index is out of bounds.");
+    }
   });
 
   $('#bookDetail').on('click', 'button.addComment', function() {
