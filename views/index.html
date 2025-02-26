@@ -13,92 +13,100 @@
       100% { transform: translateY(0px); }
     }
     .float { animation: float 3s ease-in-out infinite; }
+    .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .custom-gradient {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    #bookDetail {
+      margin-top: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
   </style>
 </head>
-<body class="bg-gradient-to-r from-blue-50 to-indigo-100 min-h-screen">
-<header class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-8 shadow-lg">
+<body class="bg-gray-100 min-h-screen font-sans flex flex-col">
+<header class="custom-gradient text-white p-4 md:p-8 sticky top-0 z-50">
   <div class="container mx-auto flex items-center justify-between">
-    <div>
-      <h1 class="text-4xl font-bold animate-fade-in">Personal Library</h1>
-      <p class="text-lg mt-2 animate-fade-in">Your digital bookshelf</p>
+    <div class="flex items-center space-x-4">
+      <div class="float">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 md:h-12 md:w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-2xl md:text-4xl font-bold animate-fade-in">Personal Library</h1>
+        <p class="text-sm md:text-lg mt-1 animate-fade-in">Your digital bookshelf</p>
+      </div>
     </div>
-    <div class="float">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-      </svg>
-    </div>
+    <nav class="hidden md:block">
+      <ul class="flex space-x-4">
+        <li><a href="#" class="hover:text-purple-200 transition-colors">Home</a></li>
+        <li><a href="#" class="hover:text-purple-200 transition-colors">My Books</a></li>
+        <li><a href="#" class="hover:text-purple-200 transition-colors">About</a></li>
+      </ul>
+    </nav>
   </div>
 </header>
 
-<div class="container mx-auto p-6">
-  <div id='sampleposting' class="mb-8 p-6 bg-white rounded-xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-1">
-    <h2 class="text-2xl font-semibold mb-4 text-gray-800 animate-fade-in">Test API Responses</h2>
-    <form action="/api/books" method="post" class="mb-6">
-      <label class="block text-gray-700 font-medium mb-2 animate-fade-in" for="title">Book Title</label>
-      <input class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all animate-fade-in" type="text" id="title" name="title" placeholder="Enter a book title">
-      <button class="mt-4 w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200 animate-fade-in" type="submit">Submit</button>
-    </form>
-    <form action="" method="post" id="commentTest" class="mb-6">
-      <label class="block text-gray-700 font-medium mb-2 animate-fade-in" for="idinputtest">Book ID to Comment On</label>
-      <input class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all animate-fade-in" type="text" name="id" id="idinputtest" placeholder="Enter a book ID">
-      <label class="block text-gray-700 font-medium mb-2 mt-4 animate-fade-in" for="comment">Comment</label>
-      <input class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all animate-fade-in" type="text" id="comment" name="comment" placeholder="Enter your comment">
-      <button class="mt-4 w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200 animate-fade-in" type="submit">Submit</button>
-    </form>
-  </div>
-  <hr class="my-8 border-gray-200">
-  <div id='sampleui' class="p-6 bg-white rounded-xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-1">
-    <h2 class="text-2xl font-semibold mb-4 text-gray-800 animate-fade-in">Your Library</h2>
-    <form id="newBookForm" class="mb-6">
-      <label class="block text-gray-700 font-medium mb-2 animate-fade-in" for="bookTitleToAdd">New Book Title</label>
-      <input class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all animate-fade-in" type="text" id="bookTitleToAdd" name="title" placeholder="Moby Dick">
-      <button class="mt-4 w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200 animate-fade-in" type="submit" id="newBook">Add New Book</button>
-    </form>
-    <div id='display' class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-    <div id='bookDetail' class='mt-6 p-6 bg-gray-50 rounded-xl border border-gray-200'>
-      <p id='detailTitle' class="text-lg font-medium text-gray-700 animate-fade-in">Select a book to see its details and comments</p>
-      <ol id='detailComments' class="mt-4 space-y-2 animate-fade-in"></ol>
+<main class="container mx-auto p-4 md:p-8 flex-grow">
+  <div class="grid md:grid-cols-3 gap-8">
+    <div id='sampleposting' class="glass-effect p-6 animate-fade-in">
+      <h2 class="text-2xl font-semibold mb-4 text-gray-800">Add a New Book</h2>
+      <p class="text-sm text-gray-600 mb-4">Test post to /api/books</p>
+      <form id="newBookForm" class="space-y-4">
+        <div>
+          <label class="block text-gray-700 font-medium mb-2" for="bookTitleToAdd">Book Title</label>
+          <input class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all" type="text" id="bookTitleToAdd" name="title" placeholder="Enter book title">
+        </div>
+        <button class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors duration-200" type="submit" id="newBook">Add New Book</button>
+      </form>
     </div>
-    <button id='deleteAllBooks' class="mt-6 w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors duration-200 animate-fade-in">Delete All Books</button>
-  </div>
-</div>
 
-<footer class="bg-gray-800 text-white py-4 mt-8">
-  <div class="container mx-auto text-center">
-    <p>&copy; 2023 Personal Library. Created for freeCodeCamp.</p>
-  </div>
-</footer>
+    <div id='commentTest' class="glass-effect p-6 animate-fade-in">
+      <h2 class="text-2xl font-semibold mb-4 text-gray-800">Add a Comment</h2>
+      <p class="text-sm text-gray-600 mb-4">Test post to /api/books/{bookid}</p>
+      <form action="" method="post" class="space-y-4">
+        <div>
+          <label class="block text-gray-700 font-medium mb-2" for="idinputtest">Book ID</label>
+          <input class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all" type="text" name="id" id="idinputtest" placeholder="Enter book ID">
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium mb-2" for="comment">Comment</label>
+          <textarea class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all max-h-24" id="comment" name="comment" placeholder="Enter your comment" rows="3"></textarea>
+        </div>
+        <button class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors duration-200" type="submit">Submit Comment</button>
+      </form>
+    </div>
 
-<script src="https://code.jquery.com/jquery-2.2.1.min.js" integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00=" crossorigin="anonymous"></script>
-<script src="/public/client.js"></script>
-<script>
-  $(function() {
-    $('#commentTest').submit(function(){
-      let id = $('#idinputtest').val();
-      $(this).attr('action', "/api/books/" + id);
-    });
-
-    // Add this new code for a more interactive UI
-    $('#display').on('click', '.book-item', function() {
-      $(this).toggleClass('bg-blue-100');
-    });
-
-    $('#newBookForm').submit(function(e) {
-      e.preventDefault();
-      let title = $('#bookTitleToAdd').val();
-      if (title) {
-        // This is where you'd normally send an AJAX request to your API
-        // For now, we'll just add it to the display for demonstration
-        $('#display').prepend(`
-          <div class="book-item p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200">
-            <h3 class="font-semibold text-lg">${title}</h3>
-            <p class="text-gray-600">ID: ${Math.random().toString(36).substr(2, 9)}</p>
-          </div>
-        `);
-        $('#bookTitleToAdd').val('');
-      }
-    });
-  });
-</script>
-</body>
-</html>
+    <div id='sampleui' class="glass-effect p-6 animate-fade-in">
+      <h2 class="text-2xl font-semibold mb-4 text-gray-800">Your Library</h2>
+      <div id='display' class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-h-[400px] overflow-hidden"></div>
+      <div id='bookDetail' class='mt-6 p-6 bg-white rounded-xl border border-gray-200 shadow-md'>
+        <p id='detailTitle' class="text-lg font-medium text-gray-700">Select a book to see its details and comments</p>
+        <ol id='detailComments' class="mt-4 space-y-2"></ol>
+      </div>
+      <button id='deleteAllBooks' class="mt-6 w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors duration-200">Delete All Books</button>
+      </div>
+      </div>
+      </main>
+      
+      <footer class="custom-gradient text-white py-4 mt-auto">
+      <div class="container mx-auto text-center">
+      <p>&copy; 2025 Personal Library Project. Created for freeCodeCamp by Feerdus95.</p>
+      </div>
+      </footer>
+      
+      <script src="https://code.jquery.com/jquery-2.2.1.min.js" integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00=" crossorigin="anonymous"></script>
+      <script src="/public/client.js"></script>
+      </body>
+      </html>

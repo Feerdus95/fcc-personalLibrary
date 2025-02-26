@@ -58,8 +58,8 @@ suite('Functional Tests', function() {
           .post('/api/books')
           .send({})
           .end(function(err, res) {
-            assert.equal(res.status, 200);
-            assert.equal(res.text, 'missing required field title');
+            assert.equal(res.status, 400);
+            assert.deepEqual(res.body, { error: 'Title is required' });
             done();
           });
       });
@@ -92,8 +92,8 @@ suite('Functional Tests', function() {
         chai.request(server)
           .get(`/api/books/${invalidId}`)
           .end(function(err, res) {
-            assert.equal(res.status, 200);
-            assert.equal(res.text, 'no book exists');
+            assert.equal(res.status, 404);
+            assert.deepEqual(res.body, { error: 'Book not found' });
             done();
           });
       });
@@ -150,8 +150,8 @@ suite('Functional Tests', function() {
               .post(`/api/books/${bookId}`)
               .send({})
               .end(function(err, res) {
-                assert.equal(res.status, 200);
-                assert.equal(res.text, 'missing required field comment');
+                assert.equal(res.status, 400);
+                assert.deepEqual(res.body, { error: 'Comment is required' });
                 done();
               });
           });
@@ -163,8 +163,8 @@ suite('Functional Tests', function() {
           .post(`/api/books/${invalidId}`)
           .send({ comment: 'Test Comment' })
           .end(function(err, res) {
-            assert.equal(res.status, 200);
-            assert.equal(res.text, 'no book exists');
+            assert.equal(res.status, 404);
+            assert.deepEqual(res.body, { error: 'Book not found' });
             done();
           });
       });
@@ -183,7 +183,7 @@ suite('Functional Tests', function() {
               .delete(`/api/books/${bookId}`)
               .end(function(err, res) {
                 assert.equal(res.status, 200);
-                assert.equal(res.text, 'delete successful');
+                assert.equal(res.body.message, 'Book deleted successfully');
                 done();
               });
           });
@@ -194,8 +194,8 @@ suite('Functional Tests', function() {
         chai.request(server)
           .delete(`/api/books/${invalidId}`)
           .end(function(err, res) {
-            assert.equal(res.status, 200);
-            assert.equal(res.text, 'no book exists');
+            assert.equal(res.status, 404);
+            assert.deepEqual(res.body, { error: 'Book not found' });
             done();
           });
       });
