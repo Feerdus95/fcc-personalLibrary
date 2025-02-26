@@ -5,6 +5,7 @@ $(document).ready(function() {
   // Initial book list display
   $.getJSON('/api/books', function(data) {
     itemsRaw = data;
+    console.log("itemsRaw (initial):", itemsRaw); // Added log
     refreshBookList();
   });
 
@@ -44,7 +45,8 @@ $(document).ready(function() {
 
   $('#display').on('click', '.book-item', function() {
     const index = $('#display .book-item').index(this);
-    if (itemsRaw && itemsRaw[index] && itemsRaw[index]._id) { // Added check
+    console.log("itemsRaw (click):", itemsRaw); //Added log
+    if (itemsRaw && itemsRaw[index] && itemsRaw[index]._id) {
       const bookId = itemsRaw[index]._id;
       $.getJSON('/api/books/' + bookId, function(data) {
         let comments = [];
