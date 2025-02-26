@@ -1,71 +1,91 @@
 const express = require('express');
 const router = express.Router();
-const { ObjectId } = require('mongoose').Types;
-
-// Mock database (replace with MongoDB if needed)
-let books = [];
+const Book = require('../models/book');
 
 // POST /api/books
-router.post('/books', (req, res) => {
+router.post('/books', async (req, res) => {
   const { title } = req.body;
   if (!title) {
-    return res.status(400).send('missing required field title'); // Plain text error
+    return res.status(400).send('missing required field title');
   }
-  const newBook = { title, _id: new ObjectId(), comments: [] };
-  books.push(newBook);
-  res.status(200).json(newBook);
+  try {
+    const newBook = new Book({ title });
+    const savedBook = await newBook.save();
+    res.json(savedBook);
+  } catch (err) {
+    res.status(500).send('Error adding book');
+  }
 });
 
 // GET /api/books
-router.get('/books', (req, res) => {
-  if (books.length === 0) {
-    return res.status(200).json([]);
+router.get('/books', async (req, res) => {
+  try {
+    const books = await Book.find({});
+    const bookList = books.map(book => ({
+      _id: book._id,
+      title: book.title,
+      commentcount: book.comments.length
+    }));
+    res.json(bookList);
+  } catch (err) {
+    res.status(500).send('Error retrieving books');
   }
-  const bookList = books.map(book => ({
-    title: book.title,
-    _id: book._id,
-    commentcount: book.comments.length,
-  }));
-  res.status(200).json(bookList);
 });
 
 // GET /api/books/:id
-router.get('/books/:id', (req, res) => {
-  const book = books.find(b => b._id.toString() === req.params.id);
-  if (!book) {
-    return res.status(404).send('no book exists'); // Plain text error
+router.get('/books/:id', async (req, res) => {
+  try {
+    const book = await Book.findById(req.params.id);
+    if (!book) {
+      return res.status(404).send('no book exists');
+    }
+    res.json(book);
+  } catch (err) {
+    res.status(404).send('no book exists');
   }
-  res.status(200).json(book);
 });
 
-// POST /api/books/:id (Add Comment)
-router.post('/books/:id', (req, res) => {
+// POST /api/books/:id
+router.post('/books/:id', async (req, res) => {
   const { comment } = req.body;
-  const book = books.find(b => b._id.toString() === req.params.id);
-  if (!book) {
-    return res.status(404).send('no book exists'); // Plain text error
-  }
   if (!comment) {
-    return res.status(400).send('missing required field comment'); // Plain text error
+    return res.status(400).send('missing required field comment');
   }
-  book.comments.push(comment);
-  res.status(200).json(book);
+  try {
+    const book = await Book.findById(req.params.id);
+    if (!book) {
+      return res.status(404).send('no book exists');
+    }
+    book.comments.push(comment);
+    book.commentcount = book.comments.length;
+    const updatedBook = await book.save();
+    res.json(updatedBook);
+  } catch (err) {
+    res.status(404).send('no book exists');
+  }
 });
 
 // DELETE /api/books/:id
-router.delete('/books/:id', (req, res) => {
-  const bookIndex = books.findIndex(b => b._id.toString() === req.params.id);
-  if (bookIndex === -1) {
-    return res.status(404).send('no book exists'); // Plain text error
+router.delete('/books/:id', async (req, res) => {
+  try {
+    const book = await Book.findByIdAndDelete(req.params.id);
+    if (!book) {
+      return res.status(404).send('no book exists');
+    }
+    res.send('delete successful');
+  } catch (err) {
+    res.status(404).send('no book exists');
   }
-  books.splice(bookIndex, 1);
-  res.status(200).send('delete successful'); // Plain text success
 });
 
 // DELETE /api/books
-router.delete('/books', (req, res) => {
-  books = [];
-  res.status(200).send('complete delete successful');
+router.delete('/books', async (req, res) => {
+  try {
+    await Book.deleteMany({});
+    res.send('complete delete successful');
+  } catch (err) {
+    res.status(500).send('Error deleting all books');
+  }
 });
 
 module.exports = router;
