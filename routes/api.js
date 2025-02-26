@@ -4,7 +4,7 @@ const Book = require('../models/book');
 
 // POST /api/books
 router.post('/books', async (req, res) => {
-  const title = req.body.title?.trim();
+  const title = req.body.title;  // Remove trim() to handle form data as-is
   if (!title) {
     return res.status(400).send('missing required field title');
   }
@@ -50,7 +50,7 @@ router.get('/books/:id', async (req, res) => {
 
 // POST /api/books/:id
 router.post('/books/:id', async (req, res) => {
-  const comment = req.body.comment?.trim();
+  const comment = req.body.comment;  // Remove trim() to handle form data as-is
   if (!comment) {
     return res.status(400).send('missing required field comment');
   }
@@ -60,11 +60,11 @@ router.post('/books/:id', async (req, res) => {
       return res.status(404).send('no book exists');
     }
     book.comments.push(comment);
-    await book.save();
+    const updatedBook = await book.save();
     res.json({
-      _id: book._id,
-      title: book.title,
-      comments: book.comments
+      _id: updatedBook._id,
+      title: updatedBook.title,
+      comments: updatedBook.comments
     });
   } catch (err) {
     res.status(404).send('no book exists');
@@ -74,6 +74,9 @@ router.post('/books/:id', async (req, res) => {
 // DELETE /api/books/:id
 router.delete('/books/:id', async (req, res) => {
   try {
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(404).send('no book exists');
+    }
     const result = await Book.findByIdAndDelete(req.params.id);
     if (!result) {
       return res.status(404).send('no book exists');
