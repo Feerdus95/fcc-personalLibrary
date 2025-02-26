@@ -1,11 +1,11 @@
 {
 	"name": "fcc-library",
-	"version": "1.0.0",
-	"description": "boilerplate",
-	"main": "server.js",
-	"scripts": {
-		"start": "node server.js",
-		"test": "mocha tests/2_functional-tests.js"
+    "version": "1.0.0",
+    "description": "Personal Library for freeCodeCamp Quality Assurance Certification",
+    "main": "server.js",
+    "scripts": {
+        "start": "npm test && node server.js",
+        "test": "mocha tests/2_functional-tests.js"
 	},
 	"dependencies": {
 		"body-parser": "^1.15.2",
