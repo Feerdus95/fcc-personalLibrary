@@ -5,23 +5,57 @@
 * -----[Keep the tests in the same order!]-----
 * */
 
-const chai = require('chai');
 const chaiHttp = require('chai-http');
-const server = require('../server');
-const { suite, test } = require('mocha');
+const chai = require('chai');
 const assert = chai.assert;
+const server = require('../server');
+const mongoose = require('mongoose');
+const Book = require('../models/book');
 
 chai.use(chaiHttp);
 
-suite('Functional Tests', function() {
+suiteSetup(function(done) {
+  mongoose.connect(process.env.DB)
+    .then(() => {
+      console.log('Database connected for tests');
+      return Book.deleteMany({});
+    })
+    .then(() => {
+      done();
+    })
+    .catch((err) => {
+      console.error('Error in test setup:', err);
+      done(err);
+    });
+});
 
-  test('#example Test GET /api/books', function(done) {
+suite('Functional Tests', function() {
+  this.timeout(10000);
+  
+  let bookId;
+
+  // Move DELETE all books test to run first
+  test('Test DELETE /api/books to clear database', function(done) {
     chai.request(server)
-      .get('/api/books')
+      .delete('/api/books')
       .end(function(err, res) {
         assert.equal(res.status, 200);
+        assert.equal(res.text, 'complete delete successful');
+        done();
+      });
+  });
+
+  /*
+  * ----[EXAMPLE TEST]----
+  * Each test should completely test the response of the API end-point including response status code!
+  */
+  test('#example Test GET /api/books', function(done){
+    chai.request(server)
+      .get('/api/books')
+      .end(function(err, res){
+        assert.equal(res.status, 200);
         assert.isArray(res.body, 'response should be an array');
-        if (res.body.length > 0) { // Check if the array has elements
+        if(res.body.length > 0) {
           assert.property(res.body[0], 'commentcount', 'Books in array should contain commentcount');
           assert.property(res.body[0], 'title', 'Books in array should contain title');
           assert.property(res.body[0], '_id', 'Books in array should contain _id');
@@ -29,24 +63,39 @@ suite('Functional Tests', function() {
         done();
       });
   });
+  /*
+  * ----[END of EXAMPLE TEST]----
+  */
 
   suite('Routing tests', function() {
+    // Add test for DELETE all books
+    test('Test DELETE /api/books', function(done) {
+      chai.request(server)
+        .delete('/api/books')
+        .end(function(err, res) {
+          assert.equal(res.status, 200);
+          assert.equal(res.text, 'complete delete successful');
+          done();
+        });
+    });
 
     suite('POST /api/books with title => create book object/expect book object', function() {
-
+      
       test('Test POST /api/books with title', function(done) {
         chai.request(server)
           .post('/api/books')
           .send({ title: 'Test Book' })
           .end(function(err, res) {
             assert.equal(res.status, 200);
-            assert.property(res.body, '_id');
-            assert.property(res.body, 'title');
+            assert.isObject(res.body, 'response should be an object');
+            assert.property(res.body, 'title', 'response should contain title');
+            assert.property(res.body, '_id', 'response should contain _id');
             assert.equal(res.body.title, 'Test Book');
+            bookId = res.body._id; // Store book ID for later tests
             done();
           });
       });
-
+      
       test('Test POST /api/books with no title given', function(done) {
         chai.request(server)
           .post('/api/books')
@@ -57,34 +106,110 @@ suite('Functional Tests', function() {
             done();
           });
       });
-
+      
     });
 
-    suite('GET /api/books => array of books', function(){
 
-      test('#example Test GET /api/books', function(done) {
+    suite('GET /api/books => array of books', function(){
+      
+      test('Test GET /api/books',  function(done){
         chai.request(server)
           .get('/api/books')
           .end(function(err, res) {
             assert.equal(res.status, 200);
             assert.isArray(res.body, 'response should be an array');
-            if (res.body.length > 0) {
-              assert.property(res.body[0], 'commentcount', 'Books in array should contain commentcount');
-              assert.property(res.body[0], 'title', 'Books in array should contain title');
-              assert.property(res.body[0], '_id', 'Books in array should contain _id');
-            }
+            assert.property(res.body[0], 'commentcount', 'Books in array should contain commentcount');
+            assert.property(res.body[0], 'title', 'Books in array should contain title');
+            assert.property(res.body[0], '_id', 'Books in array should contain _id');
+            done();
+          });
+      });      
+      
+    });
+
+
+    suite('GET /api/books/[id] => book object with [id]', function(){
+      
+      test('Test GET /api/books/[id] with id not in db',  function(done){
+        chai.request(server)
+          .get('/api/books/invalid-id')
+          .end(function(err, res) {
+            assert.equal(res.status, 404);
+            assert.equal(res.text, 'no book exists');
+            done();
+          });
+      });
+      
+      test('Test GET /api/books/[id] with valid id in db',  function(done){
+        chai.request(server)
+          .get('/api/books/' + bookId)
+          .end(function(err, res) {
+            assert.equal(res.status, 200);
+            assert.isObject(res.body, 'response should be an object');
+            assert.property(res.body, 'title', 'response should contain title');
+            assert.property(res.body, '_id', 'response should contain _id');
+            assert.isArray(res.body.comments, 'response should contain comments array');
+            done();
+          });
+      });
+      
+    });
+
+
+    suite('POST /api/books/[id] => add comment/expect book object with id', function(){
+      
+      test('Test POST /api/books/[id] with comment', function(done){
+        chai.request(server)
+          .post('/api/books/' + bookId)
+          .send({ comment: 'Test Comment' })
+          .end(function(err, res) {
+            assert.equal(res.status, 200);
+            assert.isObject(res.body, 'response should be an object');
+            assert.property(res.body, 'comments', 'response should contain comments array');
+            assert.include(res.body.comments, 'Test Comment', 'comments array should include test comment');
             done();
           });
       });
 
+      test('Test POST /api/books/[id] without comment field', function(done){
+        chai.request(server)
+          .post('/api/books/' + bookId)
+          .send({})
+          .end(function(err, res) {
+            assert.equal(res.status, 400);
+            assert.equal(res.text, 'missing required field comment');
+            done();
+          });
+      });
+
+      test('Test POST /api/books/[id] with comment, id not in db', function(done){
+        chai.request(server)
+          .post('/api/books/invalid-id')
+          .send({ comment: 'Test Comment' })
+          .end(function(err, res) {
+            assert.equal(res.status, 404);
+            assert.equal(res.text, 'no book exists');
+            done();
+          });
+      });
+      
     });
 
-    suite('GET /api/books/[id] => book object with [id]', function(){
+    suite('DELETE /api/books/[id] => delete book object id', function() {
 
-      test('Test GET /api/books/[id] with id not in db', function(done) {
-        const invalidId = '123456789012345678901234';
+      test('Test DELETE /api/books/[id] with valid id in db', function(done){
         chai.request(server)
-          .get(`/api/books/${invalidId}`)
+          .delete('/api/books/' + bookId)
+          .end(function(err, res) {
+            assert.equal(res.status, 200);
+            assert.equal(res.text, 'delete successful');
+            done();
+          });
+      });
+
+      test('Test DELETE /api/books/[id] with  id not in db', function(done){
+        chai.request(server)
+          .delete('/api/books/invalid-id')
           .end(function(err, res) {
             assert.equal(res.status, 404);
             assert.equal(res.text, 'no book exists');
@@ -92,123 +217,16 @@ suite('Functional Tests', function() {
           });
       });
 
-      test('Test GET /api/books/[id] with valid id in db', function(done) {
-        chai.request(server)
-          .post('/api/books')
-          .send({ title: 'Test Book' })
-          .end(function(err, res) {
-            const bookId = res.body._id;
-            chai.request(server)
-              .get(`/api/books/${bookId}`)
-              .end(function(err, res) {
-                assert.equal(res.status, 200);
-                assert.property(res.body, '_id');
-                assert.property(res.body, 'title');
-                assert.property(res.body, 'comments');
-                done();
-              });
-          });
-      });
-
     });
 
-    suite('POST /api/books/[id] => add comment/expect book object with id', function(){
+  });
 
-      test('Test POST /api/books/[id] with comment', function(done) {
-        chai.request(server)
-          .post('/api/books')
-          .send({ title: 'Test Book' })
-          .end(function(err, res) {
-            const bookId = res.body._id;
-            chai.request(server)
-              .post(`/api/books/${bookId}`)
-              .send({ comment: 'Test Comment' })
-              .end(function(err, res) {
-                assert.equal(res.status, 200);
-                assert.property(res.body, '_id');
-                assert.property(res.body, 'title');
-                assert.property(res.body, 'comments');
-                assert.include(res.body.comments, 'Test Comment');
-                done();
-              });
-          });
-      });
+});
 
-      test('Test POST /api/books/[id] without comment field', function(done) {
-        chai.request(server)
-          .post('/api/books')
-          .send({ title: 'Test Book' })
-          .end(function(err, res) {
-            const bookId = res.body._id;
-            chai.request(server)
-              .post(`/api/books/${bookId}`)
-              .send({})
-              .end(function(err, res) {
-                assert.equal(res.status, 400);
-                assert.equal(res.text, 'missing required field comment');
-                done();
-              });
-          });
-      });
-
-      test('Test POST /api/books/[id] with comment, id not in db', function(done) {
-        const invalidId = '123456789012345678901234';
-        chai.request(server)
-          .post(`/api/books/${invalidId}`)
-          .send({ comment: 'Test Comment' })
-          .end(function(err, res) {
-                assert.equal(res.status, 404);
-                assert.equal(res.text, 'no book exists');
-                done();
-              });
-          });
-
-      });
-
-      suite('DELETE /api/books/[id] => delete book object id', function() {
-
-        test('Test DELETE /api/books/[id] with valid id in db', function(done) {
-          chai.request(server)
-            .post('/api/books')
-            .send({ title: 'Test Book' })
-            .end(function(err, res) {
-              const bookId = res.body._id;
-              chai.request(server)
-                .delete(`/api/books/${bookId}`)
-                .end(function(err, res) {
-                  assert.equal(res.status, 200);
-                  assert.equal(res.text, 'delete successful');
-                  done();
-                });
-            });
-        });
-
-        test('Test DELETE /api/books/[id] with id not in db', function(done) {
-          const invalidId = '123456789012345678901234';
-          chai.request(server)
-            .delete(`/api/books/${invalidId}`)
-            .end(function(err, res) {
-              assert.equal(res.status, 404);
-              assert.equal(res.text, 'no book exists');
-              done();
-            });
-        });
-
-      });
-
-      suite('DELETE /api/books => delete all book objects', function() {
-
-        test('Test DELETE /api/books', function(done) {
-          chai.request(server)
-            .delete('/api/books')
-            .end(function(err, res) {
-              assert.equal(res.status, 200);
-              assert.equal(res.text, 'complete delete successful');
-              done();
-            });
-        });
-
-      });
-
-    });
+suiteTeardown(async function() {
+  try {
+    await mongoose.connection.close();
+  } catch (err) {
+    console.error('Error closing connection:', err);
+  }
 });

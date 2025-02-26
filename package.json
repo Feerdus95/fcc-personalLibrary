@@ -4,21 +4,21 @@
     "description": "Personal Library for freeCodeCamp Quality Assurance Certification",
     "main": "server.js",
     "scripts": {
-        "start": "npm test && node server.js",
-        "test": "mocha tests/2_functional-tests.js"
-	},
-	"dependencies": {
-		"body-parser": "^1.15.2",
-		"chai": "^4.5.0",
-		"chai-http": "^4.4.0",
-		"cors": "^2.8.1",
-		"dotenv": "^8.2.0",
-		"express": "^4.14.0",
-		"mocha": "^3.5.3",
-		"mongodb": "^6.13.1",
-		"mongoose": "^8.10.2",
-		"zombie": "^5.0.5"
-	},
+        "start": "node server.js",
+        "test": "mocha --ui tdd --exit --timeout 5000 tests/2_functional-tests.js"
+    },
+    "dependencies": {
+        "body-parser": "^1.15.2",
+        "chai": "^4.5.0",
+        "chai-http": "^4.4.0",
+        "cors": "^2.8.1",
+        "dotenv": "^8.2.0",
+        "express": "^4.14.0",
+        "mocha": "^9.2.2",
+        "mongodb": "^4.13.0",
+        "mongoose": "^6.9.0",
+        "zombie": "^5.0.5"
+    },
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/freeCodeCamp/boilerplate-project-library"

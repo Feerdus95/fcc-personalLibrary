@@ -1,46 +1,61 @@
+'use strict';
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+const apiRoutes = require('./routes/api.js');
+const fccTestingRoutes = require('./routes/fcctesting.js');
+
 const app = express();
 
-// Middleware
-app.use(cors());
+// Setup middleware
+app.use('/public', express.static(process.cwd() + '/public'));
+app.use(cors({ origin: '*' })); //USED FOR FCC TESTING PURPOSES ONLY!
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// MongoDB Connection
-mongoose.connect(process.env.DB) // Removed deprecated options
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
-
-// Routes
-const apiRoutes = require('./routes/api');
-const fcctesting = require('./routes/fcctesting');
-app.use('/api', apiRoutes);
-app.use('/_api', fcctesting);
-
-// Serve static files
-app.use('/public', express.static(process.cwd() + '/public'));
-
-// Serve the index page
+//Index page (static HTML)
 app.route('/')
-  .get((req, res) => {
-    res.sendFile(process.cwd() + '/views/index.html');
-  });
+    .get(function(req, res) {
+        res.sendFile(process.cwd() + '/views/index.html');
+    });
 
-// Error handling
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
+//For FCC testing purposes
+fccTestingRoutes(app);
+
+//Routing for API 
+apiRoutes(app);
+
+//404 Not Found Middleware
+app.use(function(req, res, next) {
+    res.status(404)
+        .type('text')
+        .send('Not Found');
 });
 
-// Start the server
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`Your app is listening on port ${port}`);
-});
+// Database connection and server start
+const startServer = async () => {
+    try {
+        mongoose.set('strictQuery', false);
+        await mongoose.connect(process.env.DB, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 5000
+        });
+        console.log('Database connected successfully');
+        //Start our server and tests!
+        const listener = app.listen(process.env.PORT || 3000, function() {
+            console.log('Your app is listening on port ' + listener.address().port);
+        });
+    } catch (err) {
+        console.error('Database connection error:', err);
+        process.exit(1);
+    }
+};
 
-module.exports = app;
+startServer();
+
+module.exports = app; //for unit/functional testing
