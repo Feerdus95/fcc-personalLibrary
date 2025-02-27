@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 
-const bookSchema = new mongoose.Schema({
+const BookSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  comments: [String],
+  comments: { type: [String], default: [] },
+  commentcount: { type: Number, default: 0 }
 });
 
-module.exports = mongoose.model('Book', bookSchema);
+module.exports = mongoose.model('Book', BookSchema);

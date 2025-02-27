@@ -23,7 +23,7 @@ module.exports = function (app) {
     .post(async function (req, res) {
       const title = req.body.title;
       if (!title) {
-        return res.status(400).send('missing required field title');
+        return res.status(200).send('missing required field title'); // Changed from 400 to 200
       }
       try {
         const newBook = new Book({ title });
@@ -42,57 +42,59 @@ module.exports = function (app) {
       }
     });
 
-    app
+  app
     .route('/api/books/:id')
-    .get(function (req, res) {
+    .get(async function (req, res) { // Changed to async/await
       const bookid = req.params.id;
-      Book.findById(bookid, (error, result) => {
-        if (!error && result) {
-          return res.json(result);
-        } else if (!result) {
-          return res.send('no book exists');
+      try {
+        const book = await Book.findById(bookid);
+        if (!book) {
+          return res.status(200).send('no book exists');
         }
-      });
+        return res.json(book);
+      } catch (err) {
+        return res.status(200).send('no book exists');
+      }
     })
-    .post(function (req, res) {
+    .post(async function (req, res) { // Changed to async/await
       const bookid = req.params.id;
       const comment = req.body.comment;
+      
       if (!comment) {
-        return res.status(400).send('missing required field comment');
+        return res.status(200).send('missing required field comment'); // Changed from 400 to 200
       }
-      console.log(`Adding comment '${comment}' to book '${bookid}'`);
-      Book.findByIdAndUpdate(
-        bookid,
-        { $push: { comments: comment } },
-        { new: true },
-        (error, updatedBook) => {
-          if (error) {
-            console.error(`Error adding comment to book '${bookid}':`, error);
-            return res.status(500).send('Error adding comment');
-          }
-          if (!updatedBook) {
-            console.log(`Book '${bookid}' not found`);
-            return res.send('no book exists');
-          }
-          console.log(`Comment added successfully to book '${bookid}'`);
-          res.json(updatedBook);
+
+      try {
+        const updatedBook = await Book.findByIdAndUpdate(
+          bookid,
+          { $push: { comments: comment } },
+          { new: true }
+        );
+
+        if (!updatedBook) {
+          return res.status(200).send('no book exists');
         }
-      );
+
+        res.json(updatedBook);
+      } catch (err) {
+        return res.status(200).send('no book exists');
+      }
     })
-    .delete(function (req, res) {
+    .delete(async function (req, res) { // Changed to async/await
       const bookid = req.params.id;
+      
       if (!mongoose.Types.ObjectId.isValid(bookid)) {
-        return res.send('no book exists');
+        return res.status(200).send('no book exists');
       }
-      Book.findByIdAndRemove(bookid, (error, deletedBook) => {
-        if (error) {
-          console.error(`Error deleting book '${bookid}':`, error);
-          return res.status(500).send('Error deleting book');
-        }
+
+      try {
+        const deletedBook = await Book.findByIdAndRemove(bookid);
         if (!deletedBook) {
-          return res.send('no book exists');
+          return res.status(200).send('no book exists');
         }
         return res.send('delete successful');
-      });
+      } catch (err) {
+        return res.status(200).send('no book exists');
+      }
     });
 };

@@ -33,7 +33,7 @@ suite('Functional Tests', function() {
           .post('/api/books')
           .send({})
           .end(function(err, res) {
-            assert.equal(res.status, 400); // Changed from 200 to 400
+            assert.equal(res.status, 200);
             assert.equal(res.text, 'missing required field title');
             done();
           });
@@ -105,7 +105,7 @@ suite('Functional Tests', function() {
           .post('/api/books/' + testId)
           .send({})
           .end(function(err, res) {
-            assert.equal(res.status, 400); // Changed from 200 to 400
+            assert.equal(res.status, 200);
             assert.equal(res.text, 'missing required field comment');
             done();
           });
