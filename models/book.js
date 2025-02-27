@@ -1,17 +1,8 @@
 const mongoose = require('mongoose');
 
-const BookSchema = new mongoose.Schema({
+const bookSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  comments: { type: [String], default: [] },
-  commentcount: { type: Number, default: 0 }
+  comments: [String],
 });
 
-// Add pre-save middleware to update commentcount
-BookSchema.pre('save', function(next) {
-  if (this.comments) {
-    this.commentcount = this.comments.length;
-  }
-  next();
-});
-
-module.exports = mongoose.model('Book', BookSchema);
+module.exports = mongoose.model('Book', bookSchema);
